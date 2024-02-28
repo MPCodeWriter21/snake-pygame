@@ -1,36 +1,37 @@
 # Snake Eater
-A snake game written in Python using the Pygame library.
+A snake game written in Python using the PyGame library.
 
 
 ## Installing
-Download the Python 3 installer package from the official website and install it, if not installed previously.
+To run this game you need Python installed on your machine. (Python>=3.6)
 
-Run the following in the terminal to install the Pygame library
-```
-pip3 install pygame
+You can visit [python.org](https://python.org) and download python for your operating
+system or use your favorite package manager to install Python.
+
+Clone the repository and run the following in the terminal to install the requirements:
+```bash
+python -m pip install -r requirements.txt
 ```
 
 
 ## Running the application
-Download the source code from the repository and run the file just as any other Python script (.py) file.
+You can run the game just like any other Python script (.py) file.
+```bash
+python3 snake-game.py
 ```
-python3 Snake\ Game.py
-```
-
-
-The rest of the code is properly commented and self explanatory. Tweaks can be made to change the play style or visuals of the game.
-
 
 ## Prerequisites
 * [Python](https://www.python.org)
-* [Pygame](https://www.pygame.org/wiki/GettingStarted), an open source Python library for making multimedia applications
+* [Pygame](https://www.pygame.org/wiki/GettingStarted), an open-source Python library
+  for making multimedia applications
+* [log21](https://github.com/MPCodeWriter21/log21), an open-source library that provides
+  a simple and beautiful way of logging.
 
 
 ## Authors
 
 * **Rajat Dipta Biswas** - *Initial work*
-
-See also the list of [contributors](https://github.com/rajatdiptabiswas/snake-pygame/graphs/contributors) who participated in this project.
+* **Mehrad Pooryoussof** - *Updated work*
 
 ### CodeWriter21
 
@@ -39,12 +40,6 @@ Updated by Mehrad Pooryoussof.
 Telegram Channel: [@CodeWriter](https://t.me/CodeWriter21)
 
 Blog: [CodeWriter21.blogsky.com](http://CodeWriter21.blogsky.com)
-
-*Added Features*
-+ Score Eating added.
-+ Auto Difficulty feature added.
-+ Pause Ability added(You can use p button or Pause button to pause the game).
-+ Ability to go through windows added.
 
 ## Acknowledgements
 * [Pygame Documentations](https://www.pygame.org/docs/)
