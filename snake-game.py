@@ -1,9 +1,12 @@
-"""
-Snake Eater
-Made with PyGame
-"""
+"""Snake Eater Made with PyGame."""
 
-import pygame, sys, time, random
+import sys
+import time
+import random
+from typing import Iterable
+
+import log21
+import pygame
 
 # Difficulty settings
 # Easy      ->  10
@@ -22,10 +25,10 @@ check_errors = pygame.init()
 # pygame.init() example output -> (6, 0)
 # second number in tuple gives number of errors
 if check_errors[1] > 0:
-    print(f'[!] Had {check_errors[1]} errors when initialising game, exiting...')
+    log21.error(f'Had {check_errors[1]} errors when initialising game, exiting...')
     sys.exit(-1)
 else:
-    print('[+] Game successfully initialised')
+    log21.info('Game successfully initialised')
 
 # Initialise game window
 pygame.display.set_caption('Snake Eater')
@@ -45,7 +48,10 @@ fps_controller = pygame.time.Clock()
 snake_pos = [100, 50]
 snake_body = [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
 
-food_pos = [random.randrange(1, (frame_size_x // 10)) * 10, random.randrange(1, (frame_size_y // 10)) * 10]
+food_pos = [
+    random.randrange(1, (frame_size_x // 10)) * 10,
+    random.randrange(1, (frame_size_y // 10)) * 10
+]
 food_spawn = True
 
 direction = 'RIGHT'
@@ -54,35 +60,41 @@ change_to = direction
 score = 0
 
 
-# Game Over
 def game_over():
+    """Game Over function."""
     my_font = pygame.font.SysFont('times new roman', 90)
     game_over_surface = my_font.render('YOU DIED', True, red)
     game_over_rect = game_over_surface.get_rect()
-    game_over_rect.midtop = (frame_size_x / 2, frame_size_y / 4)
+    game_over_rect.midtop = (frame_size_x // 2, frame_size_y // 4)
     game_window.fill(black)
     game_window.blit(game_over_surface, game_over_rect)
-    show_score(0, red, 'times', 20)
+    show_score(red, 'times', 20)
     pygame.display.flip()
     time.sleep(3)
     pygame.quit()
     sys.exit()
 
 
-# Score
-def show_score(color, font, size):
+def show_score(
+    color: pygame.Color, font: str | bytes | Iterable[str | bytes], size: int
+):
+    """Show score function."""
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(score), True, color)
     score_rect = score_surface.get_rect()
-    score_rect.midtop = (frame_size_x / 10, 15)
-    rect = pygame.Rect(score_rect[0] - 5, score_rect[1] - 5, score_rect[2] + 10, score_rect[3] + 10)
+    score_rect.midtop = (frame_size_x // 10, 15)
+    rect = pygame.Rect(
+        score_rect[0] - 5, score_rect[1] - 5, score_rect[2] + 10, score_rect[3] + 10
+    )
     pygame.draw.rect(game_window, red, rect, width=4)
     game_window.blit(score_surface, score_rect)
     return rect
 
 
-# Difficulty
-def show_difficulty(color, font, size):
+def show_difficulty(
+    color: pygame.Color, font: str | bytes | Iterable[str | bytes], size: int
+):
+    """Show difficulty function."""
     difficulty_font = pygame.font.SysFont(font, size)
     if difficulty < 25:
         diff = 'Easy'
@@ -96,29 +108,35 @@ def show_difficulty(color, font, size):
         diff = 'Impossible'
     difficulty_surface = difficulty_font.render('Difficulty : ' + diff, True, color)
     difficulty_rect = difficulty_surface.get_rect()
-    difficulty_rect.midtop = (frame_size_x * 9 / 10 - difficulty_rect[3], 15)
+    difficulty_rect.midtop = (frame_size_x * 9 // 10 - difficulty_rect[3], 15)
     game_window.blit(difficulty_surface, difficulty_rect)
 
 
-# Eating Score
-def show_eating_score(color, font, size):
+def show_eating_score(
+    color: pygame.Color, font: str | bytes | Iterable[str | bytes], size: int
+):
+    """Show eating score function."""
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Stop EATING Score!!', True, color)
     score_rect = score_surface.get_rect()
-    score_rect.midtop = (frame_size_x / 2, frame_size_y - 25)
+    score_rect.midtop = (frame_size_x // 2, frame_size_y - 25)
     game_window.blit(score_surface, score_rect)
 
 
-# Game paused
-def show_pause(color, font, size):
+def show_pause(
+    color: pygame.Color, font: str | bytes | Iterable[str | bytes], size: int
+):
+    """Show pause function."""
     pause_font = pygame.font.SysFont(font, size)
     pause_surface = pause_font.render('Paused', True, color)
     pause_rect = pause_surface.get_rect()
-    pause_rect.midtop = (frame_size_x / 2, frame_size_y / 2 - pause_rect[3] / 2)
+    pause_rect.midtop = (frame_size_x // 2, frame_size_y // 2 - pause_rect[3] // 2)
     game_window.blit(pause_surface, pause_rect)
 
 
-while True:
+def move_snake():
+    """Move snake function."""
+    global direction, change_to
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -144,7 +162,7 @@ while True:
 
     # Making sure the snake cannot move in the opposite direction instantaneously
     if change_to == 'PAUSE':
-        continue
+        return 1
     if change_to == 'UP' and direction != 'DOWN':
         direction = 'UP'
     if change_to == 'DOWN' and direction != 'UP':
@@ -164,69 +182,85 @@ while True:
     if direction == 'RIGHT':
         snake_pos[0] += 10
 
-    # Snake body growing mechanism
-    snake_body.insert(0, list(snake_pos))
-    if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
-        score += 1
-        food_spawn = False
-    else:
-        snake_body.pop()
 
-    # GFX
-    game_window.fill(black)
-    for pos in snake_body:
-        # Snake body
-        # .draw.rect(play_surface, color, xy-coordinate)
-        # xy-coordinate -> .Rect(x, y, size_x, size_y)
-        pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
+def main():
+    """Main function."""
+    global food_pos, score, food_spawn, difficulty
+    while True:
+        if move_snake():
+            continue
 
-    # Game Over conditions
-    # Getting out of bounds
-    if snake_pos[0] < 0:
-        snake_pos[0] = frame_size_x - 10
-    if snake_pos[0] > frame_size_x - 10:
-        snake_pos[0] = 0
-    if snake_pos[1] < 0:
-        snake_pos[1] = frame_size_y - 10
-    if snake_pos[1] > frame_size_y - 10:
-        snake_pos[1] = 0
+        # Snake body growing mechanism
+        snake_body.insert(0, list(snake_pos))
+        if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
+            score += 1
+            food_spawn = False
+        else:
+            snake_body.pop()
 
-    # Touching the snake body
-    for block in snake_body[1:]:
-        if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
-            game_over()
+        # GFX
+        game_window.fill(black)
+        for pos in snake_body:
+            # Snake body
+            # .draw.rect(play_surface, color, xy-coordinate)
+            # xy-coordinate -> .Rect(x, y, size_x, size_y)
+            pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
 
-    # Show score
-    rect = show_score(white, 'consolas', 16)
-    eating_score = False
-    # Decrease score if snake is in score box
-    if score > 0:
-        if snake_pos[0] - rect[0] in range(rect[2]) and snake_pos[1] - rect[1] in range(rect[3]):
+        # Game Over conditions
+        # Getting out of bounds
+        if snake_pos[0] < 0:
+            snake_pos[0] = frame_size_x - 10
+        if snake_pos[0] > frame_size_x - 10:
+            snake_pos[0] = 0
+        if snake_pos[1] < 0:
+            snake_pos[1] = frame_size_y - 10
+        if snake_pos[1] > frame_size_y - 10:
+            snake_pos[1] = 0
+
+        # Touching the snake body
+        for block in snake_body[1:]:
+            if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
+                game_over()
+
+        # Show score
+        rect = show_score(white, 'consolas', 16)
+        eating_score = False
+        # Decrease score if snake is in score box
+        if score > 0 and snake_pos[0] - rect[0] in range(
+                rect[2]) and snake_pos[1] - rect[1] in range(rect[3]):
             eating_score = True
             show_score(red, 'consolas', 16)
             show_eating_score(red, 'consolas', 20)
             score -= 1
             snake_body.pop()
 
-    # Set difficulty
-    difficulty = score * 2.5 + 10
+        # Set difficulty
+        difficulty = score * 2.5 + 10
 
-    # Show difficulty
-    show_difficulty(white, 'consolas', 16)
+        # Show difficulty
+        show_difficulty(white, 'consolas', 16)
 
-    # Spawning food on the screen
-    if not food_spawn:
-        food_pos = [random.randrange(1, frame_size_x // 10) * 10,
-                    random.randrange(1 + (rect[1] + rect[3]) // 10, frame_size_y // 10) * 10]
-        food_spawn = True
+        # Spawning food on the screen
+        if not food_spawn:
+            food_pos = [
+                random.randrange(1, frame_size_x // 10) * 10,
+                random.randrange(1 + (rect[1] + rect[3]) // 10, frame_size_y // 10) * 10
+            ]
+            food_spawn = True
 
-    # Snake food
-    pygame.draw.rect(game_window, white, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+        # Snake food
+        pygame.draw.rect(
+            game_window, white, pygame.Rect(food_pos[0], food_pos[1], 10, 10)
+        )
 
-    # Refresh game screen
-    pygame.display.update()
-    # Refresh rate
-    if eating_score:
-        fps_controller.tick(10)
-    else:
-        fps_controller.tick(difficulty)
+        # Refresh game screen
+        pygame.display.update()
+        # Refresh rate
+        if eating_score:
+            fps_controller.tick(10)
+        else:
+            fps_controller.tick(difficulty)
+
+
+if __name__ == '__main__':
+    main()
