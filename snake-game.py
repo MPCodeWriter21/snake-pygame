@@ -39,6 +39,20 @@ class SnakeGame:
         big_food_score: int = 3,
         big_food_time: float = 6
     ) -> None:
+        """Snake Game class.
+
+        Args:
+            frame_size_x (int, optional): Frame size x. Defaults to 720.
+            frame_size_y (int, optional): Frame size y. Defaults to 480.
+            font (Union[str, bytes, Iterable[Union[str, bytes]]], optional): Font.
+                Defaults to 'consolas'.
+            base_difficulty (float, optional): Base difficulty. Defaults to 10.
+            difficulty_modifier (float, optional): Difficulty modifier. Defaults to 2.5.
+            fps(int, optional): Fps. Defaults to 60.
+            big_food_chance (float, optional): Big food chance. Defaults to 0.03.
+            big_food_score (int, optional): Big food score. Defaults to 3.
+            big_food_time (float, optional): Big food time. Defaults to 6.
+        """
         self.frame_size_x = frame_size_x
         self.frame_size_y = frame_size_y
         self.font = font
@@ -205,9 +219,7 @@ class SnakeGame:
             # Top Line
             pygame.draw.rect(
                 self.game_window, border_color,
-                pygame.Rect(
-                    border_x + 5, border_y, border_w - 10, 3
-                )
+                pygame.Rect(border_x + 5, border_y, border_w - 10, 3)
             )
             # Bottom Line
             pygame.draw.rect(
@@ -219,9 +231,7 @@ class SnakeGame:
             # Left line
             pygame.draw.rect(
                 self.game_window, border_color,
-                pygame.Rect(
-                    border_x, border_y + 5, 3, border_h - 10
-                )
+                pygame.Rect(border_x, border_y + 5, 3, border_h - 10)
             )
             # Right Line
             pygame.draw.rect(
@@ -401,9 +411,8 @@ class SnakeGame:
             if not self.food_spawn:
                 self.food_pos = [
                     random.randrange(1, self.frame_size_x // 10) * 10,
-                    random
-                    .randrange(1 +
-                               (rect[1] + rect[3]) // 10, bar_y // 10 - 1) * 10
+                    random.randrange(1 + (rect[1] + rect[3]) // 10, bar_y // 10 - 1) *
+                    10
                 ]
                 self.food_spawn = True
 
@@ -433,9 +442,8 @@ class SnakeGame:
                     bar_y = self.frame_size_y
                 self.big_food_pos = [
                     random.randrange(1, self.frame_size_x // 20 - 1) * 20,
-                    random
-                    .randrange(1 +
-                               (rect[1] + rect[3]) // 20, bar_y // 20 - 1) * 20
+                    random.randrange(1 + (rect[1] + rect[3]) // 20, bar_y // 20 - 1) *
+                    20
                 ]
 
                 self.big_food_pos[0] += 10
@@ -481,12 +489,46 @@ class SnakeGame:
         pygame.quit()
 
 
-if __name__ == '__main__':
+def main(
+    frame_size_x: int = 720,
+    frame_size_y: int = 480,
+    base_difficulty: float = 10,
+    difficulty_modifier: float = 2.5,
+    fps: int = 60,
+    big_food_chance: float = 0.03,
+    big_food_score: int = 3,
+    big_food_time: float = 6
+):
+    """Run the game.
+
+    Args:
+        frame_size_x (int): The width of the game frame. (default: 720)
+        frame_size_y (int): The height of the game frame. (default: 480)
+        base_difficulty (float): The base difficulty of the game. (default: 10)
+        difficulty_modifier (float): The difficulty modifier of the game. It increases
+            the difficulty based on the current score. (default: 2.5)
+        fps (int): The number of frames per second.
+        big_food_chance (float): The chance of a big food spawning. (Must be between 0
+            and 1.)
+        big_food_score (int): The score to earn for eating a BIG FOOD. (default: 3)
+        big_food_time (float): The time in seconds for a big food to stay. (default: 6)
+    """
+
+    if big_food_chance > 1:
+        log21.error(f'big_food_chance must be between 0 and 1, not {big_food_chance}')
+
     game = SnakeGame(
-        frame_size_x=1080,
-        frame_size_y=720,
-        base_difficulty=10,
-        difficulty_modifier=2,
-        fps=144,
+        frame_size_x=frame_size_x,
+        frame_size_y=frame_size_y,
+        base_difficulty=base_difficulty,
+        difficulty_modifier=difficulty_modifier,
+        fps=fps,
+        big_food_chance=big_food_chance,
+        big_food_score=big_food_score,
+        big_food_time=big_food_time
     )
     game.run()
+
+
+if __name__ == '__main__':
+    log21.argumentify(main)
