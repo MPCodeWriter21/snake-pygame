@@ -19,12 +19,6 @@ LIGHT_GRAY = pygame.Color(200, 200, 200)
 
 
 class SnakeGame:
-    # Difficulty settings
-    # Easy      ->  10
-    # Medium    ->  25
-    # Hard      ->  40
-    # Harder    ->  60
-    # Impossible->  120
     current_difficulty: float
 
     def __init__(
@@ -149,16 +143,22 @@ class SnakeGame:
         font = font or self.font
         difficulty_font = pygame.font.SysFont(font, size)
         if self.current_difficulty < 25:
-            diff = 'Easy'
+            difficulty_text = 'Baby'
         elif self.current_difficulty < 40:
-            diff = 'Medium'
+            difficulty_text = 'Beginner'
         elif self.current_difficulty < 60:
-            diff = 'Hard'
+            difficulty_text = 'Intermediate'
         elif self.current_difficulty < 120:
-            diff = 'Harder'
+            difficulty_text = 'Expert'
+        elif self.current_difficulty < 200:
+            difficulty_text = 'Master'
+        elif self.current_difficulty < 300:
+            difficulty_text = 'Insane'
         else:
-            diff = 'Impossible'
-        difficulty_surface = difficulty_font.render('Difficulty : ' + diff, True, color)
+            difficulty_text = 'GOD'
+        difficulty_surface = difficulty_font.render(
+            'Difficulty : ' + difficulty_text, True, color
+        )
         difficulty_rect = difficulty_surface.get_rect()
         difficulty_rect.midtop = (self.frame_size_x * 9 // 10 - difficulty_rect[3], 15)
         self.game_window.blit(difficulty_surface, difficulty_rect)
@@ -532,7 +532,7 @@ def main(
     frame_size_y: int = 480,
     base_difficulty: float = 10,
     difficulty_modifier: float = 2.5,
-    fps: int = 60,
+    fps: int = 90,
     big_food_chance: float = 0.03,
     big_food_score: int = 3,
     big_food_time: float = 6
