@@ -53,8 +53,8 @@ class SnakeGame:
             big_food_score (int, optional): Big food score. Defaults to 3.
             big_food_time (float, optional): Big food time. Defaults to 6.
         """
-        self.frame_size_x = (frame_size_x // 10) * 10
-        self.frame_size_y = (frame_size_y // 10) * 10
+        self.__frame_size_x = (frame_size_x // 10) * 10
+        self.__frame_size_y = (frame_size_y // 10) * 10
         self.font = font
         self.base_difficulty = base_difficulty
         self.current_difficulty = base_difficulty
@@ -81,7 +81,7 @@ class SnakeGame:
         # Initialise game window
         pygame.display.set_caption('Snake Eater')
         self.game_window = pygame.display.set_mode(
-            (self.frame_size_x, self.frame_size_y)
+            (frame_size_x, frame_size_y), pygame.RESIZABLE
         )
 
         # Game variables
@@ -285,6 +285,11 @@ class SnakeGame:
                 if event.type == pygame.QUIT:
                     self.__running = False
                     return
+
+                # Change the frame size when the window is resized
+                elif event.type == pygame.VIDEORESIZE:
+                    self.frame_size_x, self.frame_size_y = event.size
+
                 # Whenever a key is pressed down
                 elif event.type == pygame.KEYDOWN:
                     # W -> Up; S -> Down; A -> Left; D -> Right
@@ -389,6 +394,7 @@ class SnakeGame:
             # Show score
             rect = self.show_score(draw=False)
             self.eating_score = False
+
             # Decrease score if snake is in score box
             if self.score > 0 and self.snake_pos[0] - rect[0] in range(
                     rect[2]) and self.snake_pos[1] - rect[1] in range(rect[3]):
@@ -471,6 +477,38 @@ class SnakeGame:
             thread.join()
 
     @property
+    def frame_size_x(self) -> int:
+        """Get the width of the game frame."""
+        return self.__frame_size_x
+
+    @frame_size_x.setter
+    def frame_size_x(self, value: int):
+        self.__frame_size_x = (value // 10) * 10
+        if self.game_window.get_width() != value:
+            self.game_window = pygame.display.set_mode(
+                (self.frame_size_x, self.frame_size_y), pygame.RESIZABLE
+            )
+
+        if self.food_spawn and self.food_pos[0] > self.frame_size_x - 10:
+            self.food_spawn = False
+
+    @property
+    def frame_size_y(self) -> int:
+        """Get the height of the game frame."""
+        return self.__frame_size_y
+
+    @frame_size_y.setter
+    def frame_size_y(self, value: int):
+        self.__frame_size_y = (value // 10) * 10
+        if self.game_window.get_height() != value:
+            self.game_window = pygame.display.set_mode(
+                (self.frame_size_x, self.frame_size_y), pygame.RESIZABLE
+            )
+
+        if self.food_spawn and self.food_pos[1] > self.frame_size_y - 10:
+            self.food_spawn = False
+
+    @property
     def fps(self) -> int:
         """Get the number of frames per second."""
         return self.__fps
@@ -516,6 +554,7 @@ def main(
 
     if big_food_chance > 1:
         log21.error(f'big_food_chance must be between 0 and 1, not {big_food_chance}')
+        sys.exit(1)
 
     game = SnakeGame(
         frame_size_x=frame_size_x,
