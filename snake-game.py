@@ -15,6 +15,7 @@ WHITE = pygame.Color(255, 255, 255)
 RED = pygame.Color(255, 0, 0)
 GREEN = pygame.Color(0, 255, 0)
 BLUE = pygame.Color(0, 0, 255)
+LIGHT_GRAY = pygame.Color(200, 200, 200)
 
 
 class SnakeGame:
@@ -180,6 +181,61 @@ class SnakeGame:
         )
         self.game_window.blit(pause_surface, pause_rect)
 
+    def big_food_time_bar(
+        self,
+        *,
+        color: pygame.Color = WHITE,
+        border_color: pygame.Color = LIGHT_GRAY,
+        bar_thickness: int = 15,
+        draw: bool = True
+    ) -> int:
+        """Show big food time bar function."""
+        border_x = self.frame_size_x // 10 - 5
+        border_y = (self.frame_size_y * 19) // 20 - bar_thickness - 5
+        border_w = (self.frame_size_x * 8) // 10 + 10
+        border_h = bar_thickness + 10
+
+        bar_rect = pygame.Rect(
+            border_x + 5, border_y + 5,
+            (border_w - 10) * self.big_food_time_left / self.big_food_time,
+            bar_thickness
+        )
+        if draw:
+            # Draw the border
+            # Top Line
+            pygame.draw.rect(
+                self.game_window, border_color,
+                pygame.Rect(
+                    border_x + 5, border_y, border_w - 10, 3
+                )
+            )
+            # Bottom Line
+            pygame.draw.rect(
+                self.game_window, border_color,
+                pygame.Rect(
+                    border_x + 5, border_y + border_h - 5 + 2, border_w - 10, 3
+                )
+            )
+            # Left line
+            pygame.draw.rect(
+                self.game_window, border_color,
+                pygame.Rect(
+                    border_x, border_y + 5, 3, border_h - 10
+                )
+            )
+            # Right Line
+            pygame.draw.rect(
+                self.game_window, border_color,
+                pygame.Rect(
+                    border_x + border_w - 5 + 2, border_y + 5, 3, border_h - 10
+                )
+            )
+            for x in (border_x, border_x + border_w - 5):
+                for y in (border_y, border_y + border_h - 5):
+                    pygame.draw.rect(self.game_window, BLACK, pygame.Rect(x, y, 5, 5))
+            pygame.draw.rect(self.game_window, color, bar_rect)
+        return border_y
+
     def do_drawings(self):
         """Draw the things that need to be drawn."""
         self.game_window.fill(BLACK)
@@ -209,6 +265,8 @@ class SnakeGame:
                 self.game_window, WHITE,
                 pygame.Rect(self.big_food_pos[0], self.big_food_pos[1], 20, 20)
             )
+
+            self.big_food_time_bar()
 
     def main_loop(self):
         """Main loop function."""
@@ -335,13 +393,17 @@ class SnakeGame:
                 self.score * self.difficulty_modifier + self.base_difficulty
             )
 
+            if self.big_food_chance > 0:
+                bar_y = self.big_food_time_bar(draw=False)
+            else:
+                bar_y = self.frame_size_y
             # Spawning food on the screen
             if not self.food_spawn:
                 self.food_pos = [
                     random.randrange(1, self.frame_size_x // 10) * 10,
                     random
                     .randrange(1 +
-                               (rect[1] + rect[3]) // 10, self.frame_size_y // 10) * 10
+                               (rect[1] + rect[3]) // 10, bar_y // 10 - 1) * 10
                 ]
                 self.food_spawn = True
 
@@ -358,18 +420,22 @@ class SnakeGame:
                 continue
 
             if self.big_food_time_left > 0:
-                self.big_food_time_left -= 0.1
-                time.sleep(0.1)
+                self.big_food_time_left -= 0.01
+                time.sleep(0.01)
                 continue
 
             spawn_big_food = random.random() <= self.big_food_chance
             if spawn_big_food:
                 rect = self.show_score(draw=False)
+                if self.big_food_chance > 0:
+                    bar_y = self.big_food_time_bar(draw=False)
+                else:
+                    bar_y = self.frame_size_y
                 self.big_food_pos = [
-                    random.randrange(1, self.frame_size_x // 20) * 20,
+                    random.randrange(1, self.frame_size_x // 20 - 1) * 20,
                     random
                     .randrange(1 +
-                               (rect[1] + rect[3]) // 20, self.frame_size_y // 20) * 20
+                               (rect[1] + rect[3]) // 20, bar_y // 20 - 1) * 20
                 ]
 
                 self.big_food_pos[0] += 10
@@ -377,6 +443,7 @@ class SnakeGame:
                     self.big_food_pos[0] = 0
 
                 self.big_food_time_left = self.big_food_time
+                continue
 
             time.sleep(1)
 
@@ -421,5 +488,6 @@ if __name__ == '__main__':
         base_difficulty=10,
         difficulty_modifier=2,
         fps=144,
+        big_food_chance=0.2
     )
     game.run()
