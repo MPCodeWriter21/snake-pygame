@@ -29,7 +29,7 @@ class SnakeGame:
         base_difficulty: float = 10,
         difficulty_modifier: float = 2.5,
         fps: int = 60,
-        big_food_chance: float = 0.03,
+        big_food_chance: float = 0.02,
         big_food_score: int = 3,
         big_food_time: float = 6
     ) -> None:
@@ -43,7 +43,7 @@ class SnakeGame:
             base_difficulty (float, optional): Base difficulty. Defaults to 10.
             difficulty_modifier (float, optional): Difficulty modifier. Defaults to 2.5.
             fps(int, optional): Fps. Defaults to 60.
-            big_food_chance (float, optional): Big food chance. Defaults to 0.03.
+            big_food_chance (float, optional): Big food chance. Defaults to 0.02.
             big_food_score (int, optional): Big food score. Defaults to 3.
             big_food_time (float, optional): Big food time. Defaults to 6.
         """
@@ -94,6 +94,7 @@ class SnakeGame:
 
         self.score = 0
         self.eating_score = False
+        self.in_the_danger_zone = False
 
         self.__running = False
 
@@ -123,14 +124,14 @@ class SnakeGame:
         score_font = pygame.font.SysFont(font, size)
         score_surface = score_font.render('Score : ' + str(self.score), True, color)
         score_rect = score_surface.get_rect()
-        score_rect.midtop = (self.frame_size_x // 10, 15)
-        rect = pygame.Rect(
+        score_rect.topleft = (self.frame_size_x // 25, self.frame_size_y // 25)
+        red_rect = pygame.Rect(
             score_rect[0] - 5, score_rect[1] - 5, score_rect[2] + 10, score_rect[3] + 10
         )
         if draw:
-            pygame.draw.rect(self.game_window, RED, rect, width=4)
+            pygame.draw.rect(self.game_window, RED, red_rect, width=4)
             self.game_window.blit(score_surface, score_rect)
-        return rect
+        return red_rect
 
     def show_difficulty(
         self,
@@ -150,9 +151,9 @@ class SnakeGame:
             difficulty_text = 'Intermediate'
         elif self.current_difficulty < 120:
             difficulty_text = 'Expert'
-        elif self.current_difficulty < 200:
+        elif self.current_difficulty < 250:
             difficulty_text = 'Master'
-        elif self.current_difficulty < 300:
+        elif self.current_difficulty < 400:
             difficulty_text = 'Insane'
         else:
             difficulty_text = 'GOD'
@@ -160,7 +161,16 @@ class SnakeGame:
             'Difficulty : ' + difficulty_text, True, color
         )
         difficulty_rect = difficulty_surface.get_rect()
-        difficulty_rect.midtop = (self.frame_size_x * 9 // 10 - difficulty_rect[3], 15)
+        difficulty_rect.topleft = (
+            self.frame_size_x * 24 // 25 - difficulty_rect.width,
+            self.frame_size_y // 25
+        )
+        if self.current_difficulty >= 250:
+            red_rect = pygame.Rect(
+                difficulty_rect[0] - 5, difficulty_rect[1] - 5, difficulty_rect[2] + 10,
+                difficulty_rect[3] + 10
+            )
+            pygame.draw.rect(self.game_window, RED, red_rect, width=4)
         self.game_window.blit(difficulty_surface, difficulty_rect)
 
     def show_eating_score(
@@ -174,6 +184,21 @@ class SnakeGame:
         font = font or self.font
         score_font = pygame.font.SysFont(font, size)
         score_surface = score_font.render('Stop EATING Score!!', True, color)
+        score_rect = score_surface.get_rect()
+        score_rect.midtop = (self.frame_size_x // 2, self.frame_size_y - 25)
+        self.game_window.blit(score_surface, score_rect)
+
+    def show_danger_zone(
+        self,
+        *,
+        color: pygame.Color = RED,
+        font: Optional[Union[str, bytes, Iterable[Union[str, bytes]]]] = None,
+        size: int = 20
+    ):
+        """Show danger zone function."""
+        font = font or self.font
+        score_font = pygame.font.SysFont(font, size)
+        score_surface = score_font.render('Danger Zone!!', True, color)
         score_rect = score_surface.get_rect()
         score_rect.midtop = (self.frame_size_x // 2, self.frame_size_y - 25)
         self.game_window.blit(score_surface, score_rect)
@@ -258,7 +283,9 @@ class SnakeGame:
             )
 
         # Show score
-        self.show_score()
+        self.show_score(
+            color=RED if self.eating_score or self.in_the_danger_zone else WHITE
+        )
 
         # Show difficulty
         self.show_difficulty()
@@ -409,10 +436,20 @@ class SnakeGame:
                 self.score * self.difficulty_modifier + self.base_difficulty
             )
 
+            self.in_the_danger_zone = False
+            # Decrease score if snake is in Insane or GOD difficulty box
+            if self.score > 0 and self.current_difficulty >= 250:
+                self.in_the_danger_zone = True
+                self.show_score(color=RED)
+                self.show_danger_zone(color=RED)
+                self.score -= 1
+                self.snake_body.pop()
+
             if self.big_food_chance > 0:
                 bar_y = self.big_food_time_bar(draw=False)
             else:
                 bar_y = self.frame_size_y
+
             # Spawning food on the screen
             if not self.food_spawn:
                 self.food_pos = [
@@ -523,6 +560,16 @@ class SnakeGame:
         """Get the time between each frame."""
         return self.__tick
 
+    @property
+    def in_the_danger_zone(self) -> bool:
+        """When the difficulty is insane or higher, the difficulty box becomes a Danger
+        Zone!"""
+        return self.__in_the_danger_zone
+
+    @in_the_danger_zone.setter
+    def in_the_danger_zone(self, value: bool):
+        self.__in_the_danger_zone = value
+
     def __del__(self):
         pygame.quit()
 
@@ -533,7 +580,7 @@ def main(
     base_difficulty: float = 10,
     difficulty_modifier: float = 2.5,
     fps: int = 90,
-    big_food_chance: float = 0.03,
+    big_food_chance: float = 0.02,
     big_food_score: int = 3,
     big_food_time: float = 6
 ):
