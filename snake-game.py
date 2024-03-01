@@ -488,6 +488,5 @@ if __name__ == '__main__':
         base_difficulty=10,
         difficulty_modifier=2,
         fps=144,
-        big_food_chance=0.2
     )
     game.run()
