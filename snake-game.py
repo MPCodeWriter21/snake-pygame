@@ -53,8 +53,8 @@ class SnakeGame:
             big_food_score (int, optional): Big food score. Defaults to 3.
             big_food_time (float, optional): Big food time. Defaults to 6.
         """
-        self.frame_size_x = frame_size_x
-        self.frame_size_y = frame_size_y
+        self.frame_size_x = (frame_size_x // 10) * 10
+        self.frame_size_y = (frame_size_y // 10) * 10
         self.font = font
         self.base_difficulty = base_difficulty
         self.current_difficulty = base_difficulty
