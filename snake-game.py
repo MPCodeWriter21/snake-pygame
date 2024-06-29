@@ -320,13 +320,17 @@ class SnakeGame:
                 # Whenever a key is pressed down
                 elif event.type == pygame.KEYDOWN:
                     # W -> Up; S -> Down; A -> Left; D -> Right
-                    if event.key == pygame.K_UP or event.key == ord('w'):
+                    if (event.key == pygame.K_UP or event.key == ord('w')
+                            or event.key == ord('k')):
                         self.change_to = 'UP'
-                    if event.key == pygame.K_DOWN or event.key == ord('s'):
+                    if (event.key == pygame.K_DOWN or event.key == ord('s')
+                            or event.key == ord('j')):
                         self.change_to = 'DOWN'
-                    if event.key == pygame.K_LEFT or event.key == ord('a'):
+                    if (event.key == pygame.K_LEFT or event.key == ord('a')
+                            or event.key == ord('h')):
                         self.change_to = 'LEFT'
-                    if event.key == pygame.K_RIGHT or event.key == ord('d'):
+                    if (event.key == pygame.K_RIGHT or event.key == ord('d')
+                            or event.key == ord('l')):
                         self.change_to = 'RIGHT'
                     if event.key == pygame.K_PAUSE or event.key == ord('p'):
                         self.change_to = 'PAUSE'
